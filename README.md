@@ -1,2 +1,2 @@
 # Simix
-A Operating System like Minix
+An Operating System like Minix
