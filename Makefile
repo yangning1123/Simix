@@ -3,6 +3,7 @@
 # compliers
 AS	:= as
 LD	:= ld
+QEMU	:= qemu-system-i386
 
 # flags
 #ASFLAGS :=
@@ -23,7 +24,12 @@ clean:
 images:
 	dd if=$(BOOT) of=a.img bs=512 count=1 conv=notrunc
 
+run:
+	$(QEMU) -drive format=raw,file=a.img
+
+
 $(BOOT): boot/boot.S
-	$(AS) -o $@ $<
+	$(AS) $< -o boot.o
+	$(LD) $(LDFLAGS) -o $@ boot.o
 
 
