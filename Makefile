@@ -18,7 +18,7 @@ all: $(BOOT)
 boot: $(BOOT)
 
 clean:
-	rm -rf *.img $(BOOT)
+	rm -rf $(BOOT)
 
 images:
 	dd if=$(BOOT) of=a.img bs=512 count=1 conv=notrunc
