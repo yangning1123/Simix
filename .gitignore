@@ -29,3 +29,7 @@
 *.bin
 *.img
 *.elf
+
+# log files
+*.txt
+*.log
