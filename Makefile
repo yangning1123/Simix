@@ -24,12 +24,12 @@ clean:
 images:
 	dd if=$(BOOT) of=a.img bs=512 count=1 conv=notrunc
 
-run:
+simulation:
 	$(QEMU) -drive format=raw,file=a.img
 
 
 $(BOOT): boot/boot.S
-	$(AS) $< -o boot.o
-	$(LD) $(LDFLAGS) -o $@ boot.o
+	$(AS) $< -o boot/boot.o
+	$(LD) $(LDFLAGS) -o $@ boot/boot.o
 
 
