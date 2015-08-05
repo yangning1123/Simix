@@ -9,26 +9,29 @@ QEMU	:= qemu-system-i386
 # flags
 #ASFLAGS := -I./include
 LDFLAGS := --oformat binary -e _start -Ttext 0x7c00 
-CCFLAGS := -Wall -Werror -ffreestanding -I./include
+CCFLAGS := -pipe -Wall -Wextra -ffreestanding -I./include
 
-# execute binarys
+# execute binarys and images
 BOOT 	:= boot/boot.bin
+IMAGES	:= a.img            # 假设a.img已存在且为fat12格式
 
 # targets
-all: $(BOOT)
+all: $(BOOT) $(IMAGES)
 
 boot: $(BOOT)
+
+images: $(IMAGES)
 
 clean:
 	rm -rf $(BOOT)
 
-# 假设floppy已存在当前目录
-images:
-	dd if=$(BOOT) of=a.img bs=512 count=1 conv=notrunc
-
 simulation:
 	$(QEMU) -drive format=raw,file=a.img
 
+
+
+$(IMAGES): $(BOOT)
+	dd if=$(BOOT) of=a.img bs=512 count=1 conv=notrunc
 
 $(BOOT): boot/boot.S
 	$(CC) $(CCFLAGS) -c $< -o boot/boot.o 
