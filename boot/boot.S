@@ -23,10 +23,35 @@ after_BPB:
 	
 real_start:
 /* 初始化堆栈及各个寄存器,段寄存器均为0,故忽略 */
-	xor	%ax, %ax
-	xor	%cx, %cx
-	mov	$BASE_OF_STACK, %sp
+	xorw	%ax, %ax
+	xorw	%cx, %cx
+	movw	$BASE_OF_STACK, %sp
 
+	call	sectors_of_entry
+	movw 	%ax, %bx
+
+	/* 跳转至loader */
+	ljmp	$0x9000, $0
+	
+/* 计算根目录扇区数,计算结果保存在ax中 */
+	.type	sectors_of_entry, @function
+sectors_of_entry:
+	xorw	%ax, %ax
+	xorw	%dx, %dx
+	movw	BPB_NUMBER_ROOT_ENTRIES, %ax 
+	shl	$5, %ax   /* 每条目32bytes */
+	divw	BPB_BYTES_PER_SECTOR
+	testw	%dx, %dx
+	jnz	1f
+	ret
+1:
+	inc 	%ax
+	ret
+
+
+/* 读取指定扇区内容 */
+	.type	read_sector, @function
+read_sector:	
 	
 
 	.org  510
