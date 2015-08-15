@@ -27,30 +27,48 @@ real_start:
 	xor	%cx, %cx
 	mov	$BASE_OF_STACK, %sp
 
-	call	sectors_of_entry
-	mov 	%ax, %bx
-
 	/* 软驱复位 */
 	xor 	%ah, %ah
 	xor 	%dl, %dl
 	int 	$0x13
 	
-	push	$0x7e00
-	push	$0x0
+	push	$OFFSET_OF_READ_SECS
+	push	$BASE_OF_READ_SECS
+	
+	
+
+
+
+/* 在根目录下寻找"LOADER.BIN"文件 */
+find_loader:	
+	/* 一次读取一个扇区 */
 	push	$0x1
-	push	$0x22
-	call	read_sector
+	push	$0x13
+	call 	read_sector
+
+	/* 逐字节比较 */
+	lea 	LOADER_NAME, %si
+	/* BASE_OF_READ_SECS:OFFSET_OF_READ_SECS */	
+	mov	$OFFSET_OF_READ_SECS, %di
+	mov	$0xb, %cx
+	cld
+	repe	cmpsb
+	je 	1f
+
+/* 找到loader */
+1:
+	
+	
 	
 	/* 跳转至loader */
 	ljmp	$0x9000, $0
-
-
-
-/* 在根目录下寻找"loader.bin"文件 */
-	.type	find_loader, @function
-find_loader:	
 	
+/* 根据根目录中loader条目内容查找FAT ENTRY */
+get_fat_entry:
+
 	
+/* 加载loader */
+load_loader:	
 
 	
 /* 计算根目录扇区数,计算结果保存在ax中 */
@@ -106,7 +124,11 @@ read_sector:
 	ret
 
 
+/* 常量定义 */
+LOADER_NAME:
+	.ascii	"LOADER  TXT"
 
+	
 	.org  510
 	.word BOOT_SIGNATURE 
 
