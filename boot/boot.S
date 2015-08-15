@@ -30,17 +30,32 @@ real_start:
 	call	sectors_of_entry
 	mov 	%ax, %bx
 
-	push	$0x7c00
+	/* 软驱复位 */
+	xor 	%ah, %ah
+	xor 	%dl, %dl
+	int 	$0x13
+	
+	push	$0x7e00
 	push	$0x0
-	push	$0x21
+	push	$0x1
+	push	$0x22
 	call	read_sector
 	
 	/* 跳转至loader */
 	ljmp	$0x9000, $0
+
+
+
+/* 在根目录下寻找"loader.bin"文件 */
+	.type	find_loader, @function
+find_loader:	
+	
+	
+
 	
 /* 计算根目录扇区数,计算结果保存在ax中 */
-	.type	sectors_of_entry, @function
-sectors_of_entry:
+	.type	sectors_of_root, @function
+sectors_of_root:
 	xor	%ax, %ax
 	xor	%dx, %dx
 	mov	BPB_NUMBER_ROOT_ENTRIES, %ax 
@@ -54,8 +69,8 @@ sectors_of_entry:
 	ret
 
 
-/* 读取指定扇区内容，默认每次读一个扇区
- * input: 目标扇区数, 读取到的位置es:bx
+/* 读取指定扇区内容，参数顺序遵循c标准风格
+ * input: 目标扇区号、读取扇区数、 读取到的位置es:bx
  */
 	.type	read_sector, @function
 read_sector:	
@@ -68,11 +83,9 @@ read_sector:
 	lea	-4(%bp), %bx
 	
 	mov	4(%bp), %ax
-/*	mov	6(%bp), %es
-	mov	8(%bp), %bx
-*/
- 
-	
+	mov	8(%bp), %es
+	mov	10(%bp), %bx
+ 	
 	divb 	BPB_SECS_PER_TRACK
 	/* 柱面号 */
 	mov	%al, %ch  
@@ -84,17 +97,15 @@ read_sector:
 	mov	%ah, %cl
 	inc 	%cl	
 
-	mov	$0, %dl
-	mov	$0x0201, %ax
+	xor	%dl, %dl
+	mov	$0x02, %ah
+	mov	6(%bp), %al
 	int 	$0x13
-	jc	read_error
 	
 	leave
 	ret
 
-	
-read_error:
-	mov	%ax, %bx	
+
 
 	.org  510
 	.word BOOT_SIGNATURE 
