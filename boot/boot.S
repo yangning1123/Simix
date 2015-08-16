@@ -40,25 +40,36 @@ real_start:
 
 
 /* 在根目录下寻找"LOADER.BIN"文件 */
-find_loader:	
-	/* 一次读取一个扇区 */
-	push	$0x1
+find_loader:
+	call sectors_of_root
+	/* 为了方便，一次读取整个root */
+	push	%ax
 	push	$0x13
 	call 	read_sector
 
-	/* 逐字节比较 */
-	lea 	LOADER_NAME, %si
 	/* BASE_OF_READ_SECS:OFFSET_OF_READ_SECS */	
 	mov	$OFFSET_OF_READ_SECS, %di
+	xor	%ax, %ax
+cmp_loader_name:	
+	/* 逐字节比较 */
+	lea 	LOADER_NAME, %si
 	mov	$0xb, %cx
 	cld
 	repe	cmpsb
 	je 	1f
+	/* 指向本条目的开头 */
+	and	$0xffe0, %di  	
+	add	$0x20, %di
+	inc 	%ax
+	cmp 	BPB_NUMBER_ROOT_ENTRIES, %ax
+	je	loader_not_found
+	jmp	cmp_loader_name
+
+loader_not_found:
+	hlt
 
 /* 找到loader */
 1:
-	
-	
 	
 	/* 跳转至loader */
 	ljmp	$0x9000, $0
@@ -126,7 +137,7 @@ read_sector:
 
 /* 常量定义 */
 LOADER_NAME:
-	.ascii	"LOADER  TXT"
+	.ascii	"LOADER  BIN"
 
 	
 	.org  510
