@@ -34,8 +34,6 @@ real_start:
 	
 	push	$OFFSET_OF_READ_SECS
 	push	$BASE_OF_READ_SECS
-	
-	
 
 
 /* 在根目录下寻找"LOADER.BIN"文件 */
@@ -79,10 +77,23 @@ get_fat_entry:
 	push	$0x1
 	push	$0x9
 	call	read_sector
-	
 
+
+	mov	4(%bp), %ax
+	/*
+	mul	$0x3
+	div	$0x2
+	cmp 	$0x0, %ah
+	
+	jz	even
+	*/
+	
 	leave 
 	ret
+/* 偶数 */
+even:
+	shr	$0x1, %ax
+
 	
 /* 加载loader */
 load_loader:
