@@ -38,7 +38,6 @@ real_start:
 	
 
 
-
 /* 在根目录下寻找"LOADER.BIN"文件 */
 find_loader:
 	call sectors_of_root
@@ -46,6 +45,7 @@ find_loader:
 	push	%ax
 	push	$0x13
 	call 	read_sector
+	sub	$0x4, %sp
 
 	/* BASE_OF_READ_SECS:OFFSET_OF_READ_SECS */	
 	mov	$OFFSET_OF_READ_SECS, %di
@@ -56,7 +56,7 @@ cmp_loader_name:
 	mov	$0xb, %cx
 	cld
 	repe	cmpsb
-	je 	1f
+	je 	get_fat_entry
 	/* 指向本条目的开头 */
 	and	$0xffe0, %di  	
 	add	$0x20, %di
@@ -66,21 +66,29 @@ cmp_loader_name:
 	jmp	cmp_loader_name
 
 loader_not_found:
-	hlt
-
-/* 找到loader */
-1:
+	jmp	.
 	
-	/* 跳转至loader */
-	ljmp	$0x9000, $0
-	
-/* 根据根目录中loader条目内容查找FAT ENTRY */
+/* 给定簇号，查找FAT ENTRY，
+ * 返回文件的下一个簇号（如果占多个扇区的话）
+ */
+	.type get_fat_entry, @function
 get_fat_entry:
+	push	%bp
+	mov	%sp, %bp
 
+	push	$0x1
+	push	$0x9
+	call	read_sector
+	
+
+	leave 
+	ret
 	
 /* 加载loader */
-load_loader:	
-
+load_loader:
+	
+	/* 跳转至loader */
+	ljmp	$BASE_OF_READ_SECS, $OFFSET_OF_READ_SECS
 	
 /* 计算根目录扇区数,计算结果保存在ax中 */
 	.type	sectors_of_root, @function
@@ -105,11 +113,6 @@ sectors_of_root:
 read_sector:	
 	push	%bp
 	mov	%sp, %bp
-	
-	xor 	%ax, %ax
-	mov	%ax, %es
-	sub	$4, %sp
-	lea	-4(%bp), %bx
 	
 	mov	4(%bp), %ax
 	mov	8(%bp), %es
