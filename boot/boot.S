@@ -32,14 +32,13 @@ real_start:
 	xor 	%dl, %dl
 	int	$0x13
 	
-	push	$OFFSET_OF_READ_SECS
-	push	$BASE_OF_READ_SECS
-
 
 /* 在根目录下寻找"LOADER.BIN"文件 */
 find_loader:
 	call	 sectors_of_root
 	/* 为了方便，一次读取整个root */
+	push	$OFFSET_OF_READ_SECS
+	push	$BASE_OF_READ_SECS
 	push	%ax
 	push	$0x13
 	call 	read_sector
@@ -98,7 +97,6 @@ get_fat_entry:
 	div	%cx
 	
 	cmp 	$0x0, %dx
-	
 	jz	even
 	jmp 	odd
 	
