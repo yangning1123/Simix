@@ -8,5 +8,8 @@
 #define         BASE_OF_READ_SECS    0x7e0
 #define         OFFSET_OF_READ_SECS  0x0
 
+/* 定义读取loader的内存位置，0x90000=0x9000:0x0 */
+#define         BASE_OF_LOADER       0x9000
+#define         OFFSET_OF_LOADER     0x0
 
 #endif /* BOOT_H */
