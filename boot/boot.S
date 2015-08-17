@@ -80,15 +80,10 @@ get_fat_entry:
 	
 	push	$OFFSET_OF_READ_SECS
 	push	$BASE_OF_READ_SECS
-
 	push	$0x9
 	push	$0x1
 	call	read_sector
 
-	/*
-	push 	%es
-	push	%bx
-	*/
 	mov	4(%bp), %ax
 	
 	mov	$0x3, %cx
