@@ -30,7 +30,7 @@ real_start:
 	/* 软驱复位 */
 	xor 	%ah, %ah
 	xor 	%dl, %dl
-	int 	$0x13
+	int	$0x13
 	
 	push	$OFFSET_OF_READ_SECS
 	push	$BASE_OF_READ_SECS
@@ -38,12 +38,11 @@ real_start:
 
 /* 在根目录下寻找"LOADER.BIN"文件 */
 find_loader:
-	call sectors_of_root
+	call	 sectors_of_root
 	/* 为了方便，一次读取整个root */
 	push	%ax
 	push	$0x13
 	call 	read_sector
-	sub	$0x4, %sp
 
 	/* BASE_OF_READ_SECS:OFFSET_OF_READ_SECS */	
 	mov	$OFFSET_OF_READ_SECS, %di
@@ -54,7 +53,7 @@ cmp_loader_name:
 	mov	$0xb, %cx
 	cld
 	repe	cmpsb
-	je 	get_fat_entry
+	je 	loader_found
 	/* 指向本条目的开头 */
 	and	$0xffe0, %di  	
 	add	$0x20, %di
@@ -65,6 +64,9 @@ cmp_loader_name:
 
 loader_not_found:
 	jmp	.
+loader_found:
+	push	$0x1
+	call	get_fat_entry
 	
 /* 给定簇号，查找FAT ENTRY，
  * 返回文件的下一个簇号（如果占多个扇区的话）
@@ -74,26 +76,58 @@ get_fat_entry:
 	push	%bp
 	mov	%sp, %bp
 
-	push	$0x1
+	push 	%es
+	push	%bx
+	
+	push	$OFFSET_OF_READ_SECS
+	push	$BASE_OF_READ_SECS
+
 	push	$0x9
+	push	$0x1
 	call	read_sector
 
-
-	mov	4(%bp), %ax
 	/*
-	mul	$0x3
-	div	$0x2
-	cmp 	$0x0, %ah
+	push 	%es
+	push	%bx
+	*/
+	mov	4(%bp), %ax
+	
+	mov	$0x3, %cx
+	mul	%cx
+	dec	%cx
+	div	%cx
+	
+	cmp 	$0x0, %dx
 	
 	jz	even
-	*/
+	jmp 	odd
 	
+odd:	
+	add	%ax, %bx
+	mov	%es:(%bx), %al
+	and	$0xf0, %al
+	inc	%bx
+	mov	%es:(%bx), %dl
+	mov	%dl, %ah
+	shr	$0x4, %ax
+
+	pop	%bx
+	pop 	%es
 	leave 
 	ret
 /* 偶数 */
 even:
-	shr	$0x1, %ax
-
+	add	%ax, %bx
+	mov	%es:(%bx), %al
+	inc	%bx
+	mov	%es:(%bx), %dl
+	and	$0x0f, %dl
+	mov	%dl, %ah
+	
+	pop	%bx
+	pop 	%es
+	leave
+	ret
 	
 /* 加载loader */
 load_loader:
