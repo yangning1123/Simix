@@ -37,14 +37,14 @@ real_start:
 find_loader:
 	call	sectors_of_root
 	/* 为了方便，一次读取整个root */
-	push	$OFFSET_OF_READ_SECS
-	push	$BASE_OF_READ_SECS
+	push	$OFFSET_OF_ROOT
+	push	$BASE_OF_ROOT 
 	push	%ax
 	push	$0x13
 	call 	read_sector
 
-	/* BASE_OF_READ_SECS:OFFSET_OF_READ_SECS */	
-	mov	$OFFSET_OF_READ_SECS, %di
+	/* BASE_OF_ROOT:OFFSET_OF_ROOT */	
+	mov	$OFFSET_OF_ROOT, %di
 	xor	%ax, %ax
 cmp_loader_name:	
 	/* 逐字节比较 */
@@ -64,8 +64,14 @@ cmp_loader_name:
 loader_not_found:
 	jmp	.
 loader_found:
-	push	$0x1
+	and	$0xffe0, %di
+	/* 取loader的第一个簇号 */
+	add	$0x1a, %di
+	mov	%es:(%di), %ax
+	
+	push	%ax
 	call	get_fat_entry
+	jmp	load_loader
 	
 /* 给定簇号，查找FAT ENTRY，
  * 返回文件的下一个簇号（如果占多个扇区的话）
@@ -77,9 +83,12 @@ get_fat_entry:
 
 	push 	%es
 	push	%bx
+
+	call 	sectors_of_root
+	mulw    BPB_BYTES_PER_SECTOR
 	
-	push	$OFFSET_OF_READ_SECS
-	push	$BASE_OF_READ_SECS
+	push	%ax
+	push	$BASE_OF_ENTRY
 	push	$0x9
 	push	$0x1
 	call	read_sector
@@ -126,7 +135,7 @@ even:
 load_loader:
 	
 	/* 跳转至loader */
-	ljmp	$BASE_OF_READ_SECS, $OFFSET_OF_READ_SECS
+	ljmp	$BASE_OF_LOADER, $OFFSET_OF_LOADER
 	
 /* 计算根目录扇区数,计算结果保存在ax中 */
 	.type	sectors_of_root, @function
