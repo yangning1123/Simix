@@ -35,7 +35,7 @@ real_start:
 
 /* 在根目录下寻找"LOADER.BIN"文件 */
 find_loader:
-	call	 sectors_of_root
+	call	sectors_of_root
 	/* 为了方便，一次读取整个root */
 	push	$OFFSET_OF_READ_SECS
 	push	$BASE_OF_READ_SECS
