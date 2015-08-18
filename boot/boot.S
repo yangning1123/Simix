@@ -42,6 +42,7 @@ find_loader:
 	push	%ax
 	push	$0x13
 	call 	read_sector
+	sub	$0x8, %sp
 
 	/* BASE_OF_ROOT:OFFSET_OF_ROOT */	
 	mov	$OFFSET_OF_ROOT, %di
@@ -52,7 +53,7 @@ cmp_loader_name:
 	mov	$0xb, %cx
 	cld
 	repe	cmpsb
-	je 	loader_found
+	je 	load_loader
 	/* 指向本条目的开头 */
 	and	$0xffe0, %di  	
 	add	$0x20, %di
@@ -63,15 +64,41 @@ cmp_loader_name:
 
 loader_not_found:
 	jmp	.
-loader_found:
+
+load_loader:	
 	and	$0xffe0, %di
 	/* 取loader的第一个簇号 */
 	add	$0x1a, %di
 	mov	%es:(%di), %ax
-	
+	xor	%cx, %cx
+
+loop:
+	mov	%ax, %dx
+	add	$0x1f, %dx
+	push	%dx
+	mov	BPB_BYTES_PER_SECTOR, %ax
+	mul 	%cx
+	add	$OFFSET_OF_LOADER, %ax
+	pop	%dx
 	push	%ax
+	push	$BASE_OF_LOADER
+	push	$0x1
+	push	%dx
+	call	read_sector
+	sub 	$0x8, %sp
+	inc 	%cx
+
+	sub	$0x1f, %dx
+	push	%dx
 	call	get_fat_entry
-	jmp	load_loader
+	sub	$0x2, %sp
+	cmp 	$0xff8, %ax
+	jae	1f
+	jmp 	loop
+1:	
+	/* 跳转至loader */
+	ljmp	$BASE_OF_LOADER, $OFFSET_OF_LOADER
+
 	
 /* 给定簇号，查找FAT ENTRY，
  * 返回文件的下一个簇号（如果占多个扇区的话）
@@ -83,6 +110,8 @@ get_fat_entry:
 
 	push 	%es
 	push	%bx
+	push	%cx
+	push	%dx
 
 	call 	sectors_of_root
 	mulw    BPB_BYTES_PER_SECTOR
@@ -113,10 +142,7 @@ odd:
 	mov	%dl, %ah
 	shr	$0x4, %ax
 
-	pop	%bx
-	pop 	%es
-	leave 
-	ret
+	jmp	1f
 /* 偶数 */
 even:
 	add	%ax, %bx
@@ -126,16 +152,15 @@ even:
 	and	$0x0f, %dl
 	mov	%dl, %ah
 	
+1:
+	sub	$0x8, %sp
+	pop	%dx
+	pop	%cx
 	pop	%bx
 	pop 	%es
 	leave
 	ret
 	
-/* 加载loader */
-load_loader:
-	
-	/* 跳转至loader */
-	ljmp	$BASE_OF_LOADER, $OFFSET_OF_LOADER
 	
 /* 计算根目录扇区数,计算结果保存在ax中 */
 	.type	sectors_of_root, @function
@@ -164,6 +189,9 @@ read_sector:
 	mov	4(%bp), %ax
 	mov	8(%bp), %es
 	mov	10(%bp), %bx
+
+	push	%cx
+	push	%dx
  	
 	divb 	BPB_SECS_PER_TRACK
 	/* 柱面号 */
@@ -180,7 +208,9 @@ read_sector:
 	mov	$0x02, %ah
 	mov	6(%bp), %al
 	int 	$0x13
-	
+
+	pop	%dx
+	pop	%cx
 	leave
 	ret
 
