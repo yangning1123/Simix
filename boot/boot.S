@@ -27,6 +27,16 @@ real_start:
 	xor	%cx, %cx
 	mov	$BASE_OF_STACK, %sp
 
+	/* 清屏 */
+	mov	$0x0600, %ax
+	mov	$0x0700, %bx
+	xor	%cx, %cx
+	mov	$0x184f, %dx
+	int 	$0x10
+
+	mov	$0x0, %dh
+	call	DispStr
+
 	/* 软驱复位 */
 	xor 	%ah, %ah
 	xor 	%dl, %dl
@@ -63,6 +73,8 @@ cmp_loader_name:
 	jmp	cmp_loader_name
 
 loader_not_found:
+	mov	$0x2, %dh
+	call 	DispStr
 	jmp	.
 
 load_loader:	
@@ -95,7 +107,9 @@ loop:
 	cmp 	$0xff8, %ax
 	jae	1f
 	jmp 	loop
-1:	
+1:
+	mov	$0x1, %dh
+	call	DispStr
 	/* 跳转至loader */
 	ljmp	$BASE_OF_LOADER, $OFFSET_OF_LOADER
 
@@ -214,11 +228,36 @@ read_sector:
 	leave
 	ret
 
-
+/* 函数: Disptr
+ * 作用:
+ *	显示一个字符串, 函数开始时 dh 中应该是字符串序号(0-based)
+*/
+	.type	Dispstr, @function
+DispStr:
+	mov	$MessageLength, %ax
+	mul 	%dh
+	add	$BootMessage, %ax
+	mov	%ax, %bp
+	mov	%ds, %ax
+	mov	%ax, %es
+	mov	$MessageLength, %cx
+	mov	$0x1301, %ax
+	mov	$0x7, %bx
+	xor	%dl, %dl
+	int	$0x10
+	ret
+	
 /* 常量定义 */
 LOADER_NAME:
 	.ascii	"LOADER  BIN"
-
+	
+	.set	MessageLength, 0x9
+BootMessage:
+	.ascii	"Booting.."
+Message1:
+	.ascii	"Ready    "
+Message2:
+	.ascii	"No Loader"
 	
 	.org  510
 	.word BOOT_SIGNATURE 
