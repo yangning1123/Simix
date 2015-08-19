@@ -26,6 +26,7 @@ images: $(IMAGES)
 
 clean:
 	rm -rf $(BOOT)
+	rm -rf $(LOADER)
 
 simulation:
 	$(QEMU) -drive format=raw,file=a.img,if=floppy
@@ -42,5 +43,5 @@ $(BOOT): boot/boot.S
 	$(LD) $(LDFLAGS) -Ttext 0x7c00 -o $@ boot/boot.o
 $(LOADER): boot/loader.S
 	$(CC) $(CCFLAGS) -c $< -o boot/loader.o
-	$(LD) $(LDFLAGS) -Ttext 0x0 -o $@ boot/loader.o
+	$(LD) --oformat binary -Ttext 0x0 -o $@ boot/loader.o
 
