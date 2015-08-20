@@ -17,11 +17,10 @@ LOADER  := boot/loader.bin
 IMAGES	:= a.img            # 假设a.img已存在且为fat12格式
 
 # targets
-all: $(BOOT) $(IMAGES)
+all: $(BOOT) $(LOADER) $(IMAGES)
 
 boot: $(BOOT)
 loader: $(LOADER)
-
 images: $(IMAGES)
 
 clean:
@@ -43,5 +42,5 @@ $(BOOT): boot/boot.S
 	$(LD) $(LDFLAGS) -Ttext 0x7c00 -o $@ boot/boot.o
 $(LOADER): boot/loader.S
 	$(CC) $(CCFLAGS) -c $< -o boot/loader.o
-	$(LD) --oformat binary -Ttext 0x0 -o $@ boot/loader.o
+	$(LD) -o $@ boot/loader.o
 
