@@ -1,0 +1,11 @@
+#+TITLE: Simix开发流程与进度
+#+AUTHOR: yangning
+#+EMAIL: yangning1123@gmail.com(or yangning1123@sina.com)
+
+* bootloader编写 [50%]
+** DONE boot引导扇区 [0%]
+*** TODO to be fixed [0/1]
++ [ ] get_fat_entry函数重复加载问题
+** TODO loader编写 [50%]
+*** DONE 测试loader
+*** TODO 保护模式
