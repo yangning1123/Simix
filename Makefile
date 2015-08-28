@@ -8,7 +8,7 @@ QEMU	:= qemu-system-i386
 
 # flags
 #ASFLAGS := -I./include
-LDFLAGS := --oformat binary -e
+LDFLAGS := --oformat binary 
 CCFLAGS := -pipe -Wall -Wextra -ffreestanding -I./include
 
 # execute binarys and images
