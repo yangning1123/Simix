@@ -1,10 +1,21 @@
-	.code16
+/*
+ * loader.S: 从floppy中加载kernel.bin文件并跳入保护模式
+ *
+ * Author: yangning1123@gmail.com
+ *
+ */
 	.text
+	
+	.code16
 	.global _start
 _start:	
-	mov	$0xb800, %ax
-	mov	%ax, %gs
-	mov	$0x0f, %ah
-	mov	$0x4c, %al
-	mov	%ax, %gs:((80 * 1 + 39) * 2)
-	jmp 	.
+	jmp	start
+
+
+/* 定义GDT */
+
+	
+
+start:
+	jmp	.
+	
