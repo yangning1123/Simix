@@ -16,7 +16,8 @@ _start:
 
 
 /* 定义GDT */
-
+label_gdt:
+	.quad	0
 	
 
 start:
