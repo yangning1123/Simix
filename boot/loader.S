@@ -3,7 +3,10 @@
  *
  * Author: yangning1123@gmail.com
  *
- */
+*/
+
+#include "boot.h"
+	
 	.text
 	
 	.code16
