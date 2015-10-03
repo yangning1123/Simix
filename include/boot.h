@@ -9,7 +9,7 @@
 #define         OFFSET_OF_ROOT       0x0
 
 
-/* 定以从软盘读取FAT Entry内容到内存位置, 放在root后面，偏移地址须由计算得出 */
+/* 定义从软盘读取FAT Entry内容到内存位置, 放在root后面，偏移地址须由计算得出 */
 #define         BASE_OF_ENTRY        0x7e0
      
 
