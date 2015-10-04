@@ -231,7 +231,7 @@ read_sector:
 /* 函数: Disptr
  * 作用:
  *	显示一个字符串, 函数开始时 dh 中应该是字符串序号(0-based)
-*/
+ */
 	.type	Dispstr, @function
 DispStr:
 	mov	$MessageLength, %ax
