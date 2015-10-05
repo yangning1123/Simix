@@ -26,6 +26,7 @@ images: $(IMAGES)
 clean:
 	rm -rf $(BOOT)
 	rm -rf $(LOADER)
+	rm -rf boot/*.o
 
 simulation:
 	$(QEMU) -drive format=raw,file=a.img,if=floppy
