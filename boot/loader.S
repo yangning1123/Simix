@@ -107,6 +107,14 @@ loop:
 1:
 	mov	$0x1, %dh
 	call	DispStr
+
+/* 获取内存信息 */
+get_mem_info:
+
+
+/* 设置页表 */
+setup_paging:
+	
 	/* 跳转至kernel */
 	ljmp	$BASE_OF_KERNEL, $OFFSET_OF_KERNEL
 
