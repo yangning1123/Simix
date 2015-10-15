@@ -33,13 +33,36 @@ start:
 
 	mov	$0x0, %dh
 	call	DispStr
+	
+	xor	%ebx, %ebx
+	mov	$mem_info_buffer, %di
+/* 获取内存信息 */
+get_mem_info:
+	mov	$0xe820, %eax
+	mov	$0x14, %ecx
+	mov	$0x534d4150, %edx
+	int	$0x15
+	jc	get_mem_fail
+	add	$0x14, %di
+	incl	mem_entry_count
+	cmp	$0x0, %ebx
+	jne	get_mem_info
+	jmp	get_mem_ok
+
+get_mem_fail:
+	movl	$0x0, mem_entry_count
+	jmp	.
+
+get_mem_ok:
+	
+/* 设置页表 */
+setup_paging:
+
 
 	/* 软驱复位 */
 	xor 	%ah, %ah
 	xor 	%dl, %dl
 	int	$0x13
-
-
 /* 在根目录下寻找"KERNEL.BIN"文件 */
 find_kernel:
 	call	sectors_of_root
@@ -108,15 +131,24 @@ loop:
 	mov	$0x1, %dh
 	call	DispStr
 
-/* 获取内存信息 */
-get_mem_info:
 
+/* 进入保护模式 */
+enter_pm_start:
+	data32 addr32 lgdt gdtptr 
+	cli
 
-/* 设置页表 */
-setup_paging:
+	# 打开地址线A20
+	in	$0x92, %al
+	or 	$0x2, %al
+	out	%al, $0x92
+
+	# 准备切换到保护模式
+	mov	%cr0, %eax
+	or	$0x1, %eax
+	mov	%eax, %cr0
 	
 	/* 跳转至kernel */
-	ljmp	$BASE_OF_KERNEL, $OFFSET_OF_KERNEL
+	data32 ljmp $0x8, $ENTRY_OF_KERNEL
 
 	
 /* 给定簇号，查找FAT ENTRY，
@@ -266,7 +298,14 @@ Message1:
 	.ascii	"Ready...."
 Message2:
 	.ascii	"No Kernel"
-	
+
+
+/* 内存信息缓存块 */
+mem_info_buffer:
+	.fill	256
+/* 内存块条数 */	
+mem_entry_count:
+	.int	0
 
 #### GDT
 
@@ -278,4 +317,4 @@ gdt:
 
 gdtptr:
 	.word	gdtptr - gdt - 1	# Size of the GDT, minus 1 byte.
-	.long	gdt			# Address of the GDT.
+	.long	gdt + LOADER_PHY_ADDR	# Address of the GDT.
