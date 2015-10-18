@@ -24,6 +24,8 @@
 #define         BASE_OF_KERNEL       0x8000
 #define         OFFSET_OF_KERNEL     0x0
 
+#define         KERNEL_PHY_ADDR      0x80000
+
 #define         ENTRY_OF_KERNEL      0x80400
 
 #endif /* BOOT_H */

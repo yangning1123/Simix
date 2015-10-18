@@ -1,5 +1,8 @@
 /*
- * loader.S: 从floppy中加载kernel.bin文件并跳入保护模式
+ * loader.S:
+ * 1、从floppy中加载kernel.bin ELF文件
+ * 2、设置VGA mode
+ * 3、跳入内核执行
  *
  * Author: yangning1123@gmail.com
  *
@@ -16,13 +19,12 @@ _start:
 	
 	.include "fat12.inc"
 
-
 start:
 	mov	%cs, %ax
 	mov	%ax, %ds
 	mov	%ax, %es
 	mov	%ax, %ss
-	mov	$BASE_OF_STACK, %sp
+	mov	$0xfc00, %sp  # 栈顶
 
 	/* 清屏 */
 	mov	$0x0600, %ax
@@ -33,31 +35,6 @@ start:
 
 	mov	$0x0, %dh
 	call	DispStr
-	
-	xor	%ebx, %ebx
-	mov	$mem_info_buffer, %di
-/* 获取内存信息 */
-get_mem_info:
-	mov	$0xe820, %eax
-	mov	$0x14, %ecx
-	mov	$0x534d4150, %edx
-	int	$0x15
-	jc	get_mem_fail
-	add	$0x14, %di
-	incl	mem_entry_count
-	cmp	$0x0, %ebx
-	jne	get_mem_info
-	jmp	get_mem_ok
-
-get_mem_fail:
-	movl	$0x0, mem_entry_count
-	jmp	.
-
-get_mem_ok:
-	
-/* 设置页表 */
-setup_paging:
-
 
 	/* 软驱复位 */
 	xor 	%ah, %ah
@@ -131,24 +108,8 @@ loop:
 	mov	$0x1, %dh
 	call	DispStr
 
-
-/* 进入保护模式 */
-enter_pm_start:
-	data32 addr32 lgdt gdtptr 
-	cli
-
-	# 打开地址线A20
-	in	$0x92, %al
-	or 	$0x2, %al
-	out	%al, $0x92
-
-	# 准备切换到保护模式
-	mov	%cr0, %eax
-	or	$0x1, %eax
-	mov	%eax, %cr0
-	
-	/* 跳转至kernel */
-	data32 ljmp $0x8, $ENTRY_OF_KERNEL
+	/* kernel.bin为elf文件，定义入口地址为80400,跳转至kernel(80400) */
+	ljmp	$0x8000, $0x400
 
 	
 /* 给定簇号，查找FAT ENTRY，
@@ -300,21 +261,3 @@ Message2:
 	.ascii	"No Kernel"
 
 
-/* 内存信息缓存块 */
-mem_info_buffer:
-	.fill	256
-/* 内存块条数 */	
-mem_entry_count:
-	.int	0
-
-#### GDT
-
-	.align 8
-gdt:
-	.quad 0x0000000000000000	# Null segment.  Not used by CPU.
-	.quad 0x00cf9a000000ffff	# System code, base 0, limit 4 GB.
-	.quad 0x00cf92000000ffff        # System data, base 0, limit 4 GB.
-
-gdtptr:
-	.word	gdtptr - gdt - 1	# Size of the GDT, minus 1 byte.
-	.long	gdt + LOADER_PHY_ADDR	# Address of the GDT.
