@@ -1,7 +1,7 @@
 /*
  * loader.S:
  * 1、从floppy中加载kernel.bin ELF文件
- * 2、设置VGA mode
+ * 2、设置VGA mode(todo)
  * 3、跳入内核执行
  *
  * Author: yangning1123@gmail.com
