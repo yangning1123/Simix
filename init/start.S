@@ -10,7 +10,7 @@
 	.code16
  	.global _start
 _start:
-	mov	%cs, %eax
+	mov	%cs, %ax
 	mov 	%ax, %ds
 	mov 	%ax, %es
 	mov 	%ax, %ss
@@ -79,7 +79,7 @@ enter_pm_start:
 	
 	.code32
 1:
-	mov	$0x10, %eax
+	mov	$0x10, %ax
 	mov 	%ax, %ds
 	mov 	%ax, %es
 	mov 	%ax, %fs
