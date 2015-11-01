@@ -17,14 +17,11 @@
 #define         BASE_OF_LOADER       0x9000
 #define         OFFSET_OF_LOADER     0x0
 
-#define         LOADER_PHY_ADDR      0x90000
-
 
 /* 定义读取kernel的内存位置,0x80000=0x8000:0x0 */
 #define         BASE_OF_KERNEL       0x8000
 #define         OFFSET_OF_KERNEL     0x0
-
-#define         KERNEL_PHY_ADDR      0x80000
+#define         KERNEL_PHY_ADDR      BASE_OF_KERNEL << 4 + OFFSET_OF_KERNEL
 
 #define         ENTRY_OF_KERNEL      0x80400
 

@@ -1,11 +1,22 @@
 /*
  * start.S: 内核入口，要做的工作如下,
  * 1、检测内存信息
- * 2、开启分页机制
- * 3、进入保护模式
- *
+ * 2、进入保护模式
+ * 3、开启分页机制
+ * 4、跳入main函数
+ * 
  */
 #include <boot.h>
+
+# CR0相关属性	
+#define CR0_PE 		0x00000001      /* 保护模式 */
+#define CR0_PG 		0x80000000	/* 分页机制 */
+
+# 页相关属性		
+#define	PDE_ADDR	0x100000  	/* 页表目录在1MB内存处 */
+#define PTE_ADDR	0x101000        /* 页表地址1M + 4K */
+#define PG_P		0x1             /* 页存在标识位 */	
+
 	.text
 	.code16
  	.global _start
@@ -34,7 +45,7 @@ _start:
 1:	shrl 	$2, %eax		# Total 4 kB pages
 	addr32 	movl %eax, init_ram_pages - KERNEL_PHY_ADDR
 
-/* -- 此方法比较繁琐，故改用上述方式获取内存大小 --
+/* -- 此方法获取可用内存分布图，但比较繁琐，故改用上述方式只获取内存大小 --
 	xor	%ebx, %ebx
 	addr32  mov $mem_info_buffer - KERNEL_PHY_ADDR, %edi
 get_mem_info:
@@ -55,10 +66,6 @@ get_mem_fail:
 
 get_mem_ok:
 */
-	
-/* 设置页表 */
-setup_paging:
-
 
 /* 进入保护模式 */
 enter_pm_start:
@@ -72,7 +79,7 @@ enter_pm_start:
 
 	# 准备切换到保护模式
 	mov	%cr0, %eax
-	or	$0x1, %eax
+	orl	$CR0_PE, %eax
 	mov	%eax, %cr0
 
 	data32	ljmp $0x8, $1f
@@ -85,8 +92,42 @@ enter_pm_start:
 	mov 	%ax, %fs
 	mov 	%ax, %gs
 	mov 	%ax, %ss
+	call 	setup_paging
 	call 	main
 	jmp	.
+
+
+/* 设置页表 */
+setup_paging:
+	# 初始化页目录
+  	mov 	init_ram_pages, %ecx
+	shrl	$0xa, %ecx            # 页目录个数
+	mov  	$PDE_ADDR, %edi
+	mov 	$PTE_ADDR | PG_P, %eax
+1:	
+	stosl
+	add 	$0x1000, %eax
+	loop	1b
+
+	# 初始化所有页表
+	mov 	init_ram_pages, %ecx  # 页表个数
+	mov 	$PTE_ADDR, %edi
+	xor	%eax, %eax            # 从内存起始开始映射
+	mov	$PG_P, %eax
+1:
+	stosl
+	add 	$0x1000, %eax
+	loop	1b
+
+	# CR3指向页目录表地址
+	mov	$PDE_ADDR, %eax
+	mov 	%eax, %cr3
+	mov 	%cr0, %eax
+	orl 	$CR0_PG, %eax	      # 分页机制
+	movl 	%eax, %cr0
+
+	ret	
+
 
 /* 内存信息缓存块 */
 #	.global mem_info_buffer
