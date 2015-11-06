@@ -6,7 +6,7 @@
  * 4、跳入main函数
  * 
  */
-#include <boot.h>
+#include "boot.h"
 
 # CR0相关属性	
 #define CR0_PE 		0x00000001      /* 保护模式 */
