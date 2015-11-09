@@ -8,5 +8,5 @@ namespace kernel {
 
 void main()
 {
-    test();
+    kernel::test();
 }
