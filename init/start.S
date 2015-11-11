@@ -17,7 +17,7 @@
 #define PTE_ADDR	0x101000        /* 页表地址1M + 4K */
 #define PG_P		0x1             /* 页存在标识位 */	
 
-	.text
+	.section .text
 	.code16
  	.global _start
 _start:
@@ -93,6 +93,9 @@ enter_pm_start:
 	mov 	%ax, %gs
 	mov 	%ax, %ss
 	call 	setup_paging
+	mov	$top_of_stack, %esp
+	and 	$0xFFFFFFF0, %esp      # 16字节对齐, why?
+	mov	$0x0, %ebp
 	call 	main
 	jmp	.
 
@@ -129,6 +132,22 @@ setup_paging:
 	ret	
 
 
+
+
+
+#### GDT
+	.align 8
+gdt:
+	.quad 0x0000000000000000	# Null segment.  Not used by CPU.
+	.quad 0x00cf9a000000ffff	# System code, base 0, limit 4 GB.
+	.quad 0x00cf92000000ffff        # System data, base 0, limit 4 GB.
+
+gdtptr:
+	.word	gdtptr - gdt - 1	# Size of the GDT, minus 1 byte.
+	.long	gdt			# Address of the GDT.
+
+
+	.section .data
 /* 内存信息缓存块 */
 #	.global mem_info_buffer
 #mem_info_buffer:
@@ -143,15 +162,8 @@ setup_paging:
 init_ram_pages:
 	.int	0
 
-
-#### GDT
-	.align 8
-gdt:
-	.quad 0x0000000000000000	# Null segment.  Not used by CPU.
-	.quad 0x00cf9a000000ffff	# System code, base 0, limit 4 GB.
-	.quad 0x00cf92000000ffff        # System data, base 0, limit 4 GB.
-
-gdtptr:
-	.word	gdtptr - gdt - 1	# Size of the GDT, minus 1 byte.
-	.long	gdt			# Address of the GDT.
+# 内核栈1K大小
+	.section .bss
+	.fill  1024
+top_of_stack:	
 	

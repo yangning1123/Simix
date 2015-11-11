@@ -2,9 +2,6 @@
 include ../Makefile.vars
 
 
-# entry for kernel
-ENTRY		:= 0x80400
-
 # kernel binary
 KERNEL  	:= kernel.bin
 
@@ -13,7 +10,7 @@ OBJECTS		:= start.o main.o
 
 # targets
 all: $(OBJECTS)
-	$(LD) $(LDFLAGS) -Ttext $(ENTRY) $(OBJECTS) -o $(KERNEL)
+	$(LD) $(LDFLAGS) -T kernel.lds $(OBJECTS) -o $(KERNEL)
 
 clean:
 	rm -rf $(OBJECTS) $(KERNEL)
