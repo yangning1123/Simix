@@ -1,7 +1,8 @@
-namespace kernel {
+namespace kernel
+{
     void test()
     {
-	char *video_memory = (char*) 0xb8140;
+	char *video_memory = (char*) 0xb8000;
 	*video_memory = 'X';
     }
 }

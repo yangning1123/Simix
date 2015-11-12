@@ -242,7 +242,7 @@ DispStr:
 	mov	%ax, %es
 	mov	$MessageLength, %cx
 	mov	$0x1301, %ax
-	mov	$0x7, %bx
+	mov	$0x0c, %bx
 	xor	%dl, %dl
 	int	$0x10
 	ret

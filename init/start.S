@@ -21,12 +21,12 @@
 	.code16
  	.global _start
 _start:
-	# 清屏操作
+	# 清屏操作/*
 	mov	$0x0600, %ax
 	mov	$0x0700, %bx
 	xor	%cx, %cx
 	mov	$0x184f, %dx
-	int	$0x10
+	int	$0x10 */
 	
 	mov	%cs, %ax
 	mov 	%ax, %ds
@@ -156,13 +156,13 @@ gdtptr:
 
 	.section .data
 /* 内存信息缓存块 */
-#	.global mem_info_buffer
-#mem_info_buffer:
-#	.fill	256
+	.global mem_info_buffer
+mem_info_buffer:
+	.fill	256
 /* 内存块条数 */
-#	.global	mem_entry_count	
-#mem_entry_count:
-#	.int	0
+	.global	mem_entry_count	
+mem_entry_count:
+	.int	0
 
 # 内存分页数	
 	.global init_ram_pages

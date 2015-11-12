@@ -1,7 +1,7 @@
 /*
  * loader.S:
  * 1、从floppy中加载kernel.bin ELF文件
- * 2、设置VGA mode(todo)
+ * 2、设置VGA mode(无需设置，默认状态 Text mode, 16 colors, 80x25, 640x200)
  * 3、跳入内核执行
  *
  * Author: yangning1123@gmail.com
@@ -242,7 +242,7 @@ DispStr:
 	mov	%ax, %es
 	mov	$MessageLength, %cx
 	mov	$0x1301, %ax
-	mov	$0x7, %bx
+	mov	$0x0c, %bx
 	xor	%dl, %dl
 	int	$0x10
 	ret
