@@ -21,7 +21,7 @@
 	.code16
  	.global _start
 _start:
-	# 清屏
+	# 清屏操作
 	mov	$0x0600, %ax
 	mov	$0x0700, %bx
 	xor	%cx, %cx
