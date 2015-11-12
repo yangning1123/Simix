@@ -21,6 +21,13 @@
 	.code16
  	.global _start
 _start:
+	# 清屏
+	mov	$0x0600, %ax
+	mov	$0x0700, %bx
+	xor	%cx, %cx
+	mov	$0x184f, %dx
+	int	$0x10
+	
 	mov	%cs, %ax
 	mov 	%ax, %ds
 	mov 	%ax, %es
