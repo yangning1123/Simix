@@ -11,17 +11,17 @@ SECTIONS
     {
 	*(.text)
 	*(.text.*)
-    } 
-    .data : 
-    {
-	*(.data)
     }
     .rodata :
     {
 	*(.rodata) 
 	*(.rodata.*)
     }   
-
+    .data : 
+    {
+	*(.data)
+    }
+   
     /* BSS (zero-initialized data) is after everything else. */
     PROVIDE(bss_start = .);
     .bss : { *(.bss) }
