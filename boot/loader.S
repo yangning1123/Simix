@@ -8,7 +8,7 @@
  *
  */
 
-#include "boot.h"
+#include <sys/boot.h>
 	
 	.text
 	

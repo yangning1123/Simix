@@ -6,7 +6,7 @@
  * 4、跳入main函数
  * 
  */
-#include "boot.h"
+#include <sys/boot.h>
 
 # CR0相关属性	
 #define CR0_PE 		0x00000001      /* 保护模式 */
@@ -20,14 +20,7 @@
 	.section .text
 	.code16
  	.global _start
-_start:
-	# 清屏操作/*
-	mov	$0x0600, %ax
-	mov	$0x0700, %bx
-	xor	%cx, %cx
-	mov	$0x184f, %dx
-	int	$0x10 */
-	
+_start:	
 	mov	%cs, %ax
 	mov 	%ax, %ds
 	mov 	%ax, %es

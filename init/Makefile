@@ -1,6 +1,8 @@
 # Makefile for init
 include ../Makefile.vars
 
+# LDFLAGS strip all
+LDFLAGS		+= -s
 
 # kernel binary
 KERNEL  	:= kernel.bin

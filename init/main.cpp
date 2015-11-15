@@ -1,4 +1,6 @@
-namespace kernel
+#include "drivers/Screen.h"
+
+namespace Kernel
 {
     void test()
     {
@@ -9,5 +11,7 @@ namespace kernel
 
 void main()
 {
-    kernel::test();
+    Kernel::test();
+    IO::Screen screen(0, 0);
 }
+

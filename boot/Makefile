@@ -2,11 +2,11 @@
 include ../Makefile.vars
 
 # LDFLAGS for raw binary
-LDFLAGS 	+= --oformat binary -Ttext
+LDFLAGS 	+= --oformat binary -N
 
 # raw binarys
-BOOT 		:= boot.bin
-LOADER  	:= loader.bin
+BOOT		:= boot.bin
+LOADER		:= loader.bin
 
 # targets
 all: boot loader
@@ -15,8 +15,8 @@ clean:
 	rm -rf *.o *.bin
 
 boot: boot.o
-	$(LD) $(LDFLAGS) 0x7c00 $< -o $(BOOT)
+	$(LD) $(LDFLAGS) -Ttext 0x7c00 $< -o $(BOOT)
 loader: loader.o
-	$(LD) $(LDFLAGS) 0x0 $< -o $(LOADER)
+	$(LD) $(LDFLAGS) -Ttext 0x0 $< -o $(LOADER)
 %.o: %.S
 	$(CXX) $(CXXFLAGS) -c $< -o $@

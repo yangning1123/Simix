@@ -1,27 +1,33 @@
 OUTPUT_FORMAT("elf32-i386")
 OUTPUT_ARCH("i386")
-ENTRY(_start)			/* Kernel starts at "start" symbol. */
+ENTRY(_start)			/* Kernel starts at "_start" symbol. */
 SECTIONS
 {
     /* Specify the kernel base address. */
-    . = 0x80400; PROVIDE(kern_start = .);
+    . = 0x80400; PROVIDE(kernel_start = .);
 
-    /* Kernel starts with code, followed by read-only data and writable data. */
+    /* Kernel starts with code, followed by writable data. */
     .text : 
     {
 	*(.text)
+	*(.text.*)
     } 
     .data : 
     {
 	*(.data)
     }
+    .rodata :
+    {
+	*(.rodata) 
+	*(.rodata.*)
+    }   
 
     /* BSS (zero-initialized data) is after everything else. */
     PROVIDE(bss_start = .);
     .bss : { *(.bss) }
     PROVIDE(bss_end = .);
 
-    PROVIDE(kern_end = .);
+    PROVIDE(kernel_end = .);
     /* 暂时不能加载超过64KB的内核镜像 */
-    ASSERT(kern_end - kern_start <= 64K, "Kernel image is too big.")
+    ASSERT(kernel_end - kernel_start <= 64K, "Kernel image is too big.")
 }
