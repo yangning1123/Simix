@@ -13,5 +13,6 @@ void main()
 {
     Kernel::test();
     IO::Screen screen(0, 0);
+    screen.clear_screen();
 }
 

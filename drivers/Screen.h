@@ -12,7 +12,7 @@
 namespace IO
 {
     /* Hardware text mode color constants. */
-    enum class vga_color
+    enum vga_color
     {
 	COLOR_BLACK         = 0,
 	COLOR_BLUE          = 1,
@@ -42,19 +42,21 @@ namespace IO
 	virtual void clear_screen()      override;
 	virtual void scroll_screen()     override;
 	virtual void print_string(char*) override;
-	//protected:
+	
+    protected:
 	void move_cursor(uint8_t, uint8_t);
 
     private:
 	static uint16_t *video_address;      // 显存地址
 	uint8_t cursor_x = 0;                // 光标x轴位置
 	uint8_t cursor_y = 0;                // 光标y轴位置
-	
     };
 }
 
 
 #endif /* SCREEN_H */
+
+
 
 
 

@@ -1,7 +1,7 @@
 # Makefile for Simix
 include ./Makefile.vars
 
-DIRS 		:= boot init #kernel
+DIRS 		:= boot drivers init 
 
 # 假设a.img已存在且为fat12格式
 IMG		:= a.img   
