@@ -47,9 +47,9 @@ namespace IO
 	void move_cursor(const uint8_t, const uint8_t) const;
 
     private:
-	static uint16_t *video_address;      // 显存地址
-	uint8_t cursor_x = 0;                // 光标x轴位置
-	uint8_t cursor_y = 0;                // 光标y轴位置
+	static uint16_t* const video_address;       // 显存地址
+	uint8_t cursor_x = 0;                       // 光标x轴位置
+	uint8_t cursor_y = 0;                       // 光标y轴位置
     };
 }
 

@@ -8,7 +8,7 @@
 
 namespace IO
 {
-    uint16_t* Screen::video_address = (uint16_t*) 0xb8000;
+    uint16_t* const Screen::video_address = (uint16_t*) 0xb8000;
 
     Screen::Screen(const uint8_t &x, const uint8_t &y) :
 	VGA(),cursor_x(x), cursor_y(y)
@@ -46,20 +46,6 @@ namespace IO
 	outb(0x3D5, cursor_pos & 0xFF);
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
