@@ -13,7 +13,7 @@ inb (uint16_t port)
 {
     /* See [IA32-v2a] "IN". */
     uint8_t data;
-    asm volatile ("inb %w1, %b0" : "=a" (data) : "dn" (port));
+    asm volatile ("inb %w1, %b0" : "=a" (data) : "dN" (port));
     return data;
 }
 
@@ -23,7 +23,7 @@ inw (uint16_t port)
 {
     uint16_t data;
     /* See [IA32-v2a] "IN". */
-    asm volatile ("inw %w1, %w0" : "=a" (data) : "dn" (port));
+    asm volatile ("inw %w1, %w0" : "=a" (data) : "dN" (port));
     return data;
 }
 
@@ -33,7 +33,7 @@ inl (uint16_t port)
 {
     /* See [IA32-v2a] "IN". */
     uint32_t data;
-    asm volatile ("inl %w1, %0" : "=a" (data) : "dn" (port));
+    asm volatile ("inl %w1, %0" : "=a" (data) : "dN" (port));
     return data;
 }
 
@@ -42,7 +42,7 @@ static inline void
 outb (uint16_t port, uint8_t data)
 {
     /* See [IA32-v2b] "OUT". */
-    asm volatile ("outb %b0, %w1" : : "a" (data), "dn" (port));
+    asm volatile ("outb %b0, %w1" : : "a" (data), "dN" (port));
 }
 
 /* Writes the 16-bit DATA to PORT. */
@@ -50,7 +50,7 @@ static inline void
 outw (uint16_t port, uint16_t data)
 {
     /* See [IA32-v2b] "OUT". */
-    asm volatile ("outw %w0, %w1" : : "a" (data), "dn" (port));
+    asm volatile ("outw %w0, %w1" : : "a" (data), "dN" (port));
 }
 
 /* Writes the 32-bit DATA to PORT. */
@@ -58,7 +58,7 @@ static inline void
 outl (uint16_t port, uint32_t data)
 {
     /* See [IA32-v2b] "OUT". */
-    asm volatile ("outl %0, %w1" : : "a" (data), "dn" (port));
+    asm volatile ("outl %0, %w1" : : "a" (data), "dN" (port));
 }
 
 
