@@ -44,7 +44,7 @@ namespace IO
 	virtual void print_string(char*) override;
 	
     protected:
-	void move_cursor(uint8_t, uint8_t);
+	void move_cursor(const uint8_t, const uint8_t) const;
 
     private:
 	static uint16_t *video_address;      // 显存地址
@@ -55,11 +55,3 @@ namespace IO
 
 
 #endif /* SCREEN_H */
-
-
-
-
-
-
-
-

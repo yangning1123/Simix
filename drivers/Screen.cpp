@@ -36,7 +36,7 @@ namespace IO
 	
     }
 
-    void Screen::move_cursor(uint8_t x, uint8_t y) 
+    void Screen::move_cursor(const uint8_t x, const uint8_t y) const
     {
 	// note:(x,y)坐标，不是行和列
 	uint16_t cursor_pos = y * 80 + x;
