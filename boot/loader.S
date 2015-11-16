@@ -259,5 +259,3 @@ Message1:
 	.ascii	"Ready...."
 Message2:
 	.ascii	"No Kernel"
-
-

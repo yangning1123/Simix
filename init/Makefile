@@ -11,7 +11,7 @@ KERNEL  	:= kernel.bin
 DEP_DIRS	:= ../drivers 
 
 # objects
-OBJECTS		:= start.o main.o
+OBJECTS		:= start.o main.o misc.o
 DEP_OBJECTS	:= $(foreach dir, $(DEP_DIRS), $(dir)/*.o)
 
 # targets

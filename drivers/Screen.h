@@ -1,5 +1,5 @@
 /*
- * 屏幕操作实现类，继承自VGA类
+ * 屏幕操作实现类，继承自VGA类：只在24x80这一屏上操作
  *
  */ 
 
@@ -40,16 +40,26 @@ namespace IO
 	~Screen() = default;
 
 	virtual void clear_screen()      override;
-	virtual void scroll_screen()     override;
+	virtual void scroll_line()       override;     // 默认显示下一页屏幕
 	virtual void print_string(char*) override;
+	void print_string(char*, vga_color, vga_color);//显示一个自定义色彩的字符串
+
+	// 移动光标
+	void move_cursor();
+	void move_cursor(const uint8_t&, const uint8_t&);
 	
     protected:
-	void move_cursor(const uint8_t, const uint8_t) const;
+	void print_char(char);                         // 显示一个字符，默认黑白
+	void print_char(char, vga_color, vga_color);   //显示一个自定义色彩的字符
 
     private:
-	static uint16_t* const video_address;       // 显存地址
-	uint8_t cursor_x = 0;                       // 光标x轴位置
-	uint8_t cursor_y = 0;                       // 光标y轴位置
+	// 获取屏幕属性
+	uint16_t get_attribute(vga_color, vga_color) const;  
+    private:
+	static uint16_t* const video_address;          // 显存地址
+	static const uint16_t blank;                   // 黒底白字空白符
+	uint8_t cursor_x = 0;                          // 光标x轴位置
+	uint8_t cursor_y = 0;                          // 光标y轴位置
     };
 }
 

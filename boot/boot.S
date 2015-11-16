@@ -261,4 +261,3 @@ Message2:
 	
 	.org  510
 	.word BOOT_SIGNATURE 
-

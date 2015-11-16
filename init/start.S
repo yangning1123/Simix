@@ -20,7 +20,14 @@
 	.section .text
 	.code16
  	.global _start
-_start:	
+_start:
+	# 清屏 
+	mov	$0x0600, %ax
+	mov	$0x0700, %bx
+	xor	%cx, %cx
+	mov	$0x184f, %dx
+	int 	$0x10
+	
 	mov	%cs, %ax
 	mov 	%ax, %ds
 	mov 	%ax, %es
@@ -94,9 +101,12 @@ enter_pm_start:
 	mov 	%ax, %ss
 	call 	setup_paging
 	mov	$top_of_stack, %esp
-	and 	$0xFFFFFFF0, %esp      # 16字节对齐, why?
+	and 	$0xFFFFFFF0, %esp     # 16字节对齐, why?
 	mov	$0x0, %ebp
-	call 	main
+
+	# note:如果入口函数不是main，要extern "C"
+	call 	main 		      # fire up the kernel.
+
 	jmp	.
 
 
@@ -166,4 +176,3 @@ init_ram_pages:
 	.section .bss
 	.fill  1024
 top_of_stack:	
-	
