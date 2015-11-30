@@ -42,15 +42,19 @@ namespace IO
 	virtual void clear_screen()      override;
 	virtual void scroll_line()       override;     // 默认显示下一页屏幕
 	virtual void print_string(char*) override;
-	void print_string(char*, vga_color, vga_color);//显示一个自定义色彩的字符串
+	// 显示一个自定义色彩的字符串
+	void print_string(char*, vga_color, vga_color);
 
+	// 设置光标位置
+	void set_cursor(uint8_t, uint8_t);
 	// 移动光标
 	void move_cursor();
 	void move_cursor(const uint8_t&, const uint8_t&);
+
 	
     protected:
 	void print_char(char);                         // 显示一个字符，默认黑白
-	void print_char(char, vga_color, vga_color);   //显示一个自定义色彩的字符
+	void print_char(char, vga_color, vga_color);   // 显示一个自定义色彩的字符
 
     private:
 	// 获取屏幕属性

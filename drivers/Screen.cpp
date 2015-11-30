@@ -14,7 +14,13 @@ namespace IO
     Screen::Screen(const uint8_t &x, const uint8_t &y) :
 	VGA(),cursor_x(x), cursor_y(y)
     {
-	move_cursor(x, y);
+	move_cursor();
+    }
+
+    void Screen::set_cursor(uint8_t x, uint8_t y)
+    {
+	cursor_x = x;
+	cursor_y = y;
     }
     
     void Screen::clear_screen()
@@ -22,7 +28,8 @@ namespace IO
 	// 本质上就是在黑底上写满空白符
    	for (uint16_t i = 0; i != 80 * 25; i++)
 	    video_address[i] = blank;
-	move_cursor(0, 0);
+	set_cursor(0, 0);
+	move_cursor();
     }
 
     void Screen::print_string(char *str, vga_color fore, vga_color back)
@@ -52,9 +59,6 @@ namespace IO
 	outb(0x3D5, (cursor_pos >> 8) & 0xFF);
 	outb(0x3D4, 0x0F);
 	outb(0x3D5, cursor_pos & 0xFF);
-	// 更新坐标
-	cursor_x = x;
-	cursor_y = y;
     }
 
     void Screen::scroll_line()
