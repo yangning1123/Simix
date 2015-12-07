@@ -15,7 +15,6 @@ clean:
 images: boot/*.bin init/*.bin
 	dd if=boot/boot.bin of=$(IMG) bs=512 count=1 conv=notrunc
 	sudo mount $(IMG) /mnt/floppy
-	sudo cp -v boot/loader.bin /mnt/floppy
 	sudo cp -v init/kernel.bin /mnt/floppy
 	sudo umount /mnt/floppy
 

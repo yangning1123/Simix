@@ -1,5 +1,5 @@
 /*
- * boot.S：从floppy寻找loader并读入内存
+ * boot.S：从floppy寻找kernel并读入内存
  * 
  * Author:yangning1123@gmail.com
  *
@@ -10,19 +10,18 @@
 	.text
 	.code16
 	.global _start
-	.type	_start, @function
 _start:
 	jmp	after_BPB
 	nop
 
-/* fat12文件格式 */
+	/* fat12文件格式 */
 	.include "fat12.inc"
 	
 after_BPB:
 	ljmp	$0, $real_start
 	
 real_start:
-/* 初始化堆栈及各个寄存器,段寄存器均为0,故忽略 */
+	/* 初始化堆栈及各个寄存器,段寄存器均为0,故忽略 */
 	xor	%ax, %ax
 	xor	%cx, %cx
 	mov	$BASE_OF_STACK, %sp
@@ -31,7 +30,7 @@ real_start:
 	mov	$0x0600, %ax
 	mov	$0x0700, %bx
 	xor	%cx, %cx
-	mov	$0x184f, %dx
+	mov	$0x184F, %dx
 	int 	$0x10
 
 	mov	$0x0, %dh
@@ -43,75 +42,82 @@ real_start:
 	int	$0x13
 	
 
-/* 在根目录下寻找"LOADER.BIN"文件 */
-find_loader:
-	call	sectors_of_root
-	/* 为了方便，一次读取整个root */
-	push	$OFFSET_OF_ROOT
-	push	$BASE_OF_ROOT 
-	push	%ax
-	push	$0x13
+/* 在根目录下寻找"KERNEL.BIN"文件 */
+find_kernel:
+	/* 为了方便，一次读取整个root(14sectors)到0x7E00处 */
+	mov	$OFFSET_OF_CACHE, %bx
+	mov	$0x13, %ax
+	mov	$0xE, %cx
 	call 	read_sector
-	sub	$0x8, %sp
 
-	/* BASE_OF_ROOT:OFFSET_OF_ROOT */	
-	mov	$OFFSET_OF_ROOT, %di
+	mov	$OFFSET_OF_CACHE, %di
 	xor	%ax, %ax
-cmp_loader_name:	
+cmp_kernel_name:	
 	/* 逐字节比较 */
-	lea 	LOADER_NAME, %si
-	mov	$0xb, %cx
+	lea 	KERNEL_NAME, %si
+	mov	$0xB, %cx
 	cld
 	repe	cmpsb
-	je 	load_loader
+	je 	load_fat
 	/* 指向本条目的开头 */
-	and	$0xffe0, %di  	
+	and	$0xFFE0, %di  	
 	add	$0x20, %di
 	inc 	%ax
 	cmp 	BPB_NUMBER_ROOT_ENTRIES, %ax
-	je	loader_not_found
-	jmp	cmp_loader_name
+	je	kernel_not_found
+	jmp	cmp_kernel_name
 
-loader_not_found:
+kernel_not_found:
 	mov	$0x2, %dh
 	call 	DispStr
 	jmp	.
 
-load_loader:	
-	and	$0xffe0, %di
-	/* 取loader的第一个簇号 */
-	add	$0x1a, %di
-	mov	%es:(%di), %ax
-	xor	%cx, %cx
+	
+load_fat:
+	and	$0xFFE0, %di
+	/* 取kernel的第一个簇号 */
+	add	$0x1A, %di
+	mov	(%di), %dx
+	push 	%dx
+	mov	$OFFSET_OF_CACHE, %bx
+	mov	$0x1, %ax
+	mov	$0x9, %cx
+	call 	read_sector
 
-loop:
-	mov	%ax, %dx
-	add	$0x1f, %dx
-	push	%dx
-	mov	BPB_BYTES_PER_SECTOR, %ax
-	mul 	%cx
-	add	$OFFSET_OF_LOADER, %ax
+load_kernel:	
 	pop	%dx
-	push	%ax
-	push	$BASE_OF_LOADER
-	push	$0x1
-	push	%dx
-	call	read_sector
-	sub 	$0x8, %sp
-	inc 	%cx
+	mov	%dx, %ax
+	mov	$BASE_OF_KERNEL, %cx
+	mov	%cx, %es
+	mov	$OFFSET_OF_KERNEL, %bx
+	
+loop:
+	push 	%dx
+	add	$0x1F, %ax
 
-	sub	$0x1f, %dx
-	push	%dx
+	mov	$1, %cx
+	call	read_sector
+
+	pop	%ax
 	call	get_fat_entry
-	sub	$0x2, %sp
 	cmp 	$0xff8, %ax
-	jae	1f
-	jmp 	loop
+	jae	2f
+	mov	%ax, %dx
+	add	BPB_BYTES_PER_SECTOR, %bx
+	jnc	loop
 1:
+	push	%ax
+	mov	%es, %ax
+	add	$0x1000, %ax     # 段 + 1
+	mov	%ax, %es
+	pop 	%ax
+	jmp	loop
+2:
 	mov	$0x1, %dh
 	call	DispStr
-	/* 跳转至loader */
-	ljmp	$BASE_OF_LOADER, $OFFSET_OF_LOADER
+	
+	/* Fire up the kernel! */
+	ljmp	$0x1000, $0x400
 
 	
 /* 给定簇号，查找FAT ENTRY，
@@ -119,25 +125,8 @@ loop:
  */
 	.type get_fat_entry, @function
 get_fat_entry:
-	push	%bp
-	mov	%sp, %bp
-
-	push 	%es
-	push	%bx
-	push	%cx
-	push	%dx
-
-	call 	sectors_of_root
-	mulw    BPB_BYTES_PER_SECTOR
-	
-	push	%ax
-	push	$BASE_OF_ENTRY
-	push	$0x9
-	push	$0x1
-	call	read_sector
-
-	mov	4(%bp), %ax
-	
+	xor	%si, %si
+	mov	$OFFSET_OF_CACHE, %si
 	mov	$0x3, %cx
 	mul	%cx
 	dec	%cx
@@ -148,65 +137,32 @@ get_fat_entry:
 	jmp 	odd
 	
 odd:	
-	add	%ax, %bx
-	mov	%es:(%bx), %al
+	add	%ax, %si
+	mov	%ds:(%si), %al
 	and	$0xf0, %al
-	inc	%bx
-	mov	%es:(%bx), %dl
+	inc	%si
+	mov	%ds:(%si), %dl
 	mov	%dl, %ah
 	shr	$0x4, %ax
-
-	jmp	1f
+	ret
 /* 偶数 */
 even:
-	add	%ax, %bx
-	mov	%es:(%bx), %al
-	inc	%bx
-	mov	%es:(%bx), %dl
+	add	%ax, %si
+	mov	%ds:(%si), %al
+	inc	%si
+	mov	%ds:(%si), %dl
 	and	$0x0f, %dl
-	mov	%dl, %ah
-	
-1:
-	sub	$0x8, %sp
-	pop	%dx
-	pop	%cx
-	pop	%bx
-	pop 	%es
-	leave
+	mov	%dl, %ah	
 	ret
 	
 	
-/* 计算根目录扇区数,计算结果保存在ax中 */
-	.type	sectors_of_root, @function
-sectors_of_root:
-	xor	%ax, %ax
-	xor	%dx, %dx
-	mov	BPB_NUMBER_ROOT_ENTRIES, %ax 
-	shl	$5, %ax   /* 每条目32bytes */
-	divw	BPB_BYTES_PER_SECTOR
-	test	%dx, %dx
-	jnz	1f
-	ret
-1:
-	inc 	%ax
-	ret
-
-
-/* 读取指定扇区内容，参数顺序遵循c标准风格
- * input: 目标扇区号、读取扇区数、 读取到的位置es:bx
+/* 读取扇区内容到指定内存位置
+ * ax:目标扇区号 cx:读取扇区数  读取到的位置es:bx
  */
 	.type	read_sector, @function
-read_sector:	
-	push	%bp
-	mov	%sp, %bp
-	
-	mov	4(%bp), %ax
-	mov	8(%bp), %es
-	mov	10(%bp), %bx
-
+read_sector:
 	push	%cx
-	push	%dx
- 	
+	
 	divb 	BPB_SECS_PER_TRACK
 	/* 柱面号 */
 	mov	%al, %ch  
@@ -218,15 +174,12 @@ read_sector:
 	mov	%ah, %cl
 	inc 	%cl	
 
-	xor	%dl, %dl
+	pop	%ax
 	mov	$0x02, %ah
-	mov	6(%bp), %al
+	xor	%dl, %dl
 	int 	$0x13
-
-	pop	%dx
-	pop	%cx
-	leave
 	ret
+	
 
 /* 函数: Disptr
  * 作用:
@@ -248,16 +201,16 @@ DispStr:
 	ret
 	
 /* 常量定义 */
-LOADER_NAME:
-	.ascii	"LOADER  BIN"
+KERNEL_NAME:
+	.ascii	"KERNEL  BIN"
 	
 	.set	MessageLength, 0x9
 BootMessage:
 	.ascii	"Booting.."
 Message1:
-	.ascii	"Ready    "
+	.ascii	"Ready...."
 Message2:
-	.ascii	"No Loader"
+	.ascii	"No Kernel"
 	
-	.org  510
-	.word BOOT_SIGNATURE 
+	.org  	510
+	.word 	BOOT_SIGNATURE 

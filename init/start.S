@@ -142,9 +142,6 @@ setup_paging:
 	ret	
 
 
-
-
-
 #### GDT
 	.align 8
 gdt:
@@ -161,7 +158,7 @@ gdtptr:
 /* 内存信息缓存块 */
 	.global mem_info_buffer
 mem_info_buffer:
-	.fill	256
+	.fill	256	
 /* 内存块条数 */
 	.global	mem_entry_count	
 mem_entry_count:
