@@ -40,7 +40,7 @@ namespace IO
 	~Screen() = default;
 
 	virtual void clear_screen()      override;
-	virtual void scroll_line()       override;     // 默认显示下一页屏幕
+	virtual void scroll_line()       override;     
 	virtual void print_string(char*) override;
 	// 显示一个自定义色彩的字符串
 	void print_string(char*, vga_color, vga_color);
