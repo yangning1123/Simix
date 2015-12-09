@@ -106,8 +106,7 @@ enter_pm_start:
 
 	# note:如果入口函数不是main，要extern "C"
 	call 	main 		      # fire up the kernel.
-
-	jmp	.
+	hlt
 
 
 /* 设置页表 */

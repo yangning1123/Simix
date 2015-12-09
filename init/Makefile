@@ -1,27 +1,11 @@
-# Makefile for init
+# Makfefile for dirvers
 include ../Makefile.vars
 
-# LDFLAGS strip all
-LDFLAGS		+= -s
+OBJECTS		:= i8259.o
 
-# kernel binary
-KERNEL  	:= kernel.bin
-
-# drivers kernel, etc
-DEP_DIRS	:= ../drivers 
-
-# objects
-OBJECTS		:= start.o main.o misc.o
-DEP_OBJECTS	:= $(foreach dir, $(DEP_DIRS), $(dir)/*.o)
-
-# targets
-all: $(OBJECTS) 
-	$(LD) $(LDFLAGS) -T kernel.lds $(OBJECTS) $(DEP_OBJECTS) -o $(KERNEL)
-
+all: $(OBJECTS)	
 clean:
-	rm -rf $(OBJECTS) $(KERNEL)
+	rm -rf $(OBJECTS)
 
-%.o: %.S
-	$(CXX) $(CXXFLAGS) -c $< -o $@
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
