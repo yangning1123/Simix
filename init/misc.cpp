@@ -4,14 +4,12 @@
  */
 
 #include "drivers/Screen.h"
+#include "misc.h"
 
-namespace Misc
+void Misc::disp_meminfo()
 {
-    void disp_meminfo()
-    {
-	using namespace IO;
-	Screen screen(25, 2);
-	//screen.scroll_line();
-	screen.print_string("Hello, OS kernel!", COLOR_GREEN, COLOR_BLACK);
-    }
+    using namespace IO;
+    Screen screen(25, 2);
+    //screen.scroll_line();
+    screen.print_string("Hello, OS kernel!", COLOR_GREEN, COLOR_BLACK);
 }
