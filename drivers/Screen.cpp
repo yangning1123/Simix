@@ -40,10 +40,9 @@ void Screen::print_string(char *str, vga_color fore, vga_color back)
     }
 }
 
-    
 void Screen::print_string(char *str)
 {
-    print_string(str, COLOR_WHITE, COLOR_BLACK);
+    print_string(str, vga_color::COLOR_WHITE, vga_color::COLOR_BLACK);
 }
 
 void Screen::move_cursor()
@@ -76,7 +75,7 @@ void Screen::scroll_line()
 
 void Screen::print_char(char ch)
 {
-    print_char(ch, COLOR_WHITE, COLOR_BLACK);
+    print_char(ch, vga_color::COLOR_WHITE, vga_color::COLOR_BLACK);
 }
 
 void Screen::print_char(char ch, vga_color fore, vga_color back)

@@ -11,5 +11,5 @@ void Misc::disp_meminfo()
     using namespace IO;
     Screen screen(25, 2);
     //screen.scroll_line();
-    screen.print_string("Hello, OS kernel!", COLOR_GREEN, COLOR_BLACK);
+    screen.print_string((char*)"Hello, OS kernel!", vga_color::COLOR_GREEN, vga_color::COLOR_BLACK);
 }

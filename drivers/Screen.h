@@ -12,7 +12,7 @@
 namespace IO
 {
     /* Hardware text mode color constants. */
-    enum vga_color
+    enum class vga_color
     {
 	COLOR_BLACK         = 0,
 	COLOR_BLUE          = 1,
