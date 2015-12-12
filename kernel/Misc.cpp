@@ -4,7 +4,7 @@
  */
 
 #include "drivers/Screen.h"
-#include "misc.h"
+#include "Misc.h"
 
 void Misc::disp_meminfo()
 {
@@ -13,3 +13,13 @@ void Misc::disp_meminfo()
     //screen.scroll_line();
     screen.print_string((char*)"Hello, OS kernel!", vga_color::COLOR_GREEN, vga_color::COLOR_BLACK);
 }
+
+
+
+
+
+
+
+
+
+

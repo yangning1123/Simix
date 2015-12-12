@@ -1,10 +1,24 @@
-#include "misc.h"
+#include "Misc.h"
+#include "idt.h"
 
 
+void kern_init();
 void main()
 {
-    Misc::disp_meminfo();
+    kern_init();
 }
+
+
+
+void kern_init()
+{
+    init_idt();
+    asm volatile ("int $0x0");
+}
+
+
+
+
 
 
 

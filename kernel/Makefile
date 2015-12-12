@@ -2,16 +2,16 @@
 include ../Makefile.vars
 
 # LDFLAGS strip all
-LDFLAGS		+= -s
+#LDFLAGS		+= -s
 
 # kernel binary
 KERNEL  	:= kernel.bin
 
 # drivers kernel, etc
-DEP_DIRS	:= ../drivers ../init
+DEP_DIRS	:= ../drivers 
 
 # objects
-OBJECTS		:= start.o main.o misc.o
+OBJECTS		:= start.o main.o Misc.o idt.o idt_s.o
 DEP_OBJECTS	:= $(foreach dir, $(DEP_DIRS), $(wildcard $(dir)/*.o))
 
 # targets
