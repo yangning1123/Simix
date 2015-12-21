@@ -3,8 +3,7 @@ include ./Makefile.vars
 
 DIRS 		:= boot drivers kernel
 
-# 假设a.img已存在且为fat12格式
-IMG		:= a.img   
+
 
 all: 
 	@for i in $(DIRS); do $(MAKE) -C $$i; done 
@@ -19,5 +18,9 @@ images: boot/boot.bin kernel/kernel.bin
 	sudo umount /mnt/floppy
 
 
+debug:
+	$(QEMU) $(QEMUFLAGS) -s -S 
+
+
 simulation:
-	$(QEMU) -drive format=raw,file=$(strip $(IMG)),if=floppy
+	$(QEMU) $(QEMUFLAGS)

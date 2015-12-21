@@ -9,8 +9,7 @@
 void Misc::disp_meminfo()
 {
     using namespace IO;
-    Screen screen(25, 2);
-    //screen.scroll_line();
+    Screen screen(0, 0);    
     screen.print_string((char*)"Hello, OS kernel!", vga_color::COLOR_GREEN, vga_color::COLOR_BLACK);
 }
 

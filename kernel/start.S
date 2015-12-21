@@ -100,13 +100,13 @@ enter_pm_start:
 	mov 	%ax, %gs
 	mov 	%ax, %ss
 	call 	setup_paging
-	mov	$top_of_stack, %esp
-	and 	$0xFFFFFFF0, %esp     # 16字节对齐, why?
+	mov	$0x90000, %esp
 	mov	$0x0, %ebp
 
 	# note:如果入口函数不是main，要extern "C"
 	call 	main 		      # fire up the kernel.
 	hlt
+	jmp	.
 
 
 /* 设置页表 */
@@ -140,7 +140,7 @@ setup_paging:
 
 	ret	
 
-
+	.section .data
 #### GDT
 	.align 8
 gdt:
@@ -153,7 +153,6 @@ gdtptr:
 	.long	gdt			# Address of the GDT.
 
 
-	.section .data
 /* 内存信息缓存块 */
 	.global mem_info_buffer
 mem_info_buffer:
@@ -167,8 +166,4 @@ mem_entry_count:
 	.global init_ram_pages
 init_ram_pages:
 	.int	0
-
-# 内核栈1K大小
-	.section .bss
-	.fill  1024
-top_of_stack:	
+	

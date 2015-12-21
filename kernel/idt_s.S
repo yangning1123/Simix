@@ -1,24 +1,35 @@
 # 中断函数汇编部分	
 	
-# 定义两个构造中断处理函数的宏(有的中断有错误代码，有的没有)
-# 用于没有错误代码的中断
+####### 定义两个构造中断处理函数的宏(有的中断有错误代码，有的没有)
+####### 用于没有错误代码的中断
 	.macro ISR_NOERRCODE int_no
 	.global isr\int_no
 isr\int_no:
 	cli
-	pushl	$0x0
-	pushl	\int_no
+	push	$0x0
+	push	\int_no
 	jmp	isr_common_stub
 	.endm
 	
-# 用于有错误代码的中断
+####### 用于有错误代码的中断
 	.macro ISR_ERRCODE int_no
 	.global isr\int_no
 isr\int_no:
 	cli
-	pushl	\int_no	
+	push	\int_no	
 	jmp	isr_common_stub	
 	.endm
+
+####### IRQ
+	.macro IRQ vec, int_no
+	.global irq\vec
+irq\vec:
+	cli
+	push	$0x0
+	push	\int_no
+	jmp	irq_common_stub	
+	.endm
+	
 	
 	.section .text
 # 定义中断处理函数 -- 异常
@@ -56,6 +67,7 @@ ISR_NOERRCODE 28
 ISR_NOERRCODE 29
 ISR_NOERRCODE 30
 ISR_NOERRCODE 31
+	
 # 32～255 用户自定义
 ISR_NOERRCODE 255
 
@@ -87,3 +99,48 @@ isr_common_stub:
 	add 	$0x8, %esp    # 清理栈里的 error code 和 ISR
 	iret
 	
+
+IRQ   0,    32 	# 电脑系统计时器
+IRQ   1,    33 	# 键盘
+IRQ   2,    34 	# 与 IRQ9 相接，MPU-401 MD 使用
+IRQ   3,    35 	# 串口设备
+IRQ   4,    36 	# 串口设备
+IRQ   5,    37 	# 建议声卡使用
+IRQ   6,    38 	# 软驱传输控制使用
+IRQ   7,    39 	# 打印机传输控制使用
+IRQ   8,    40 	# 即时时钟
+IRQ   9,    41 	# 与 IRQ2 相接，可设定给其他硬件
+IRQ  10,    42 	# 建议网卡使用
+IRQ  11,    43 	# 建议 AGP 显卡使用
+IRQ  12,    44 	# 接 PS/2 鼠标，也可设定给其他硬件
+IRQ  13,    45 	# 协处理器使用
+IRQ  14,    46 	# IDE0 传输控制使用
+IRQ  15,    47 	# IDE1 传输控制使用	
+
+	.extern irq_handler
+irq_common_stub:
+	pusha
+	mov 	%ds, %ax
+	push 	%eax          # 保存数据段描述符
+
+	mov	$0x10, %ax
+	mov 	%ax, %ds
+	mov 	%ax, %es
+	mov 	%ax, %fs
+	mov 	%ax, %gs
+	mov 	%ax, %fs
+
+	push 	%esp
+	call   	irq_handler
+	add 	$0x4, %esp
+	
+	pop	%ebx
+	mov 	%bx, %ds
+	mov 	%bx, %es
+	mov 	%bx, %fs
+	mov 	%bx, %gs
+	mov 	%bx, %ss
+
+	popa
+	add 	$0x8, %esp    # 清理栈里的 error code 和 IRQ
+	iret
