@@ -38,7 +38,7 @@ void idt_init()
     idt_ptr.limit = sizeof(idt_entry_t) * INT_CNT - 1;
     idt_ptr.base = (uint32_t)&idt_entries;
     // 加载IDT
-    uint_32_t idt_ptr_m = flush_idt(idt_ptr.limit, idt_ptr.base);
+    uint64_t idt_ptr_m = flush_idt(idt_ptr.limit, idt_ptr.base);
     asm volatile ("lidt %0" : : "m" (idt_ptr_m));
     
     bzero((uint8_t *)&interrupt_handlers, sizeof(interrupt_handler_t) * INT_CNT);
