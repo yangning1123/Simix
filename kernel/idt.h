@@ -67,7 +67,7 @@ struct pt_regs {
 } pt_regs_t;
 // 指向处理函数的指针
 using interrupt_handler_t = void(*)(pt_regs_t *);
-
+//typedef void (*interrupt_handler_t)(pt_regs_t *);
 
 // 声明中断处理函数 0 ~ 19 属于 CPU 的异常中断
 // ISR中断服务程序:(interrupt service routine)
@@ -139,7 +139,7 @@ extern "C"
 }
 
 void idt_init();
-void register_interrupt_handler(uint8_t, interrupt_handler_t);
+void register_interrupt_handler(uint8_t, interrupt_handler_t, const char*);
 
 #endif /* IDT_H */
 

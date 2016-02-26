@@ -7,7 +7,7 @@
 isr\int_no:
 	cli
 	push	$0x0
-	push	\int_no
+	push	$\int_no
 	jmp	isr_common_stub
 	.endm
 	
@@ -16,7 +16,7 @@ isr\int_no:
 	.global isr\int_no
 isr\int_no:
 	cli
-	push	\int_no	
+	push	$\int_no	
 	jmp	isr_common_stub	
 	.endm
 
@@ -26,7 +26,7 @@ isr\int_no:
 irq\vec:
 	cli
 	push	$0x0
-	push	\int_no
+	push	$\int_no
 	jmp	irq_common_stub	
 	.endm
 	

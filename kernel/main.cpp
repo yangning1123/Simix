@@ -6,7 +6,7 @@
 
 
 static void bss_init();
-void init_timer(uint32_t frequency);
+void timer_init(uint32_t frequency);
 
 extern "C"
 void main()
@@ -14,8 +14,9 @@ void main()
     bss_init();
     idt_init();
     
-    init_timer(1);
+    timer_init(1);
     
+    //asm volatile ("int $0x10");
     asm volatile ("sti");
 }
 
@@ -36,10 +37,10 @@ void timer_callback(pt_regs *regs)
     ++tick;
 }
 
-void init_timer(uint32_t frequency)
+void timer_init(uint32_t frequency)
 {
     // 注册时间相关的处理函数
-    register_interrupt_handler(IRQ0, timer_callback);
+    register_interrupt_handler(IRQ0, timer_callback, "Timer");
 
     // Intel 8253/8254 PIT芯片 I/O端口地址范围是40h~43h
     // 输入频率为 1193180，frequency 即每秒中断次数

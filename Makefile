@@ -13,9 +13,11 @@ clean:
 
 images: boot/boot.bin kernel/kernel.bin
 	dd if=boot/boot.bin of=$(IMG) bs=512 count=1 conv=notrunc
-	sudo mount $(IMG) /mnt/floppy
+	mv $(IMG) ~
+	sudo mount ~/$(IMG) /mnt/floppy
 	sudo cp -v kernel/kernel.bin /mnt/floppy
 	sudo umount /mnt/floppy
+	mv ~/$(IMG) .
 
 
 debug:

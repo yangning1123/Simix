@@ -27,7 +27,6 @@ static interrupt_handler_t interrupt_handlers[INT_CNT];
 static void init_8259A();
 static void idt_set_gate(uint8_t, uint32_t, uint16_t, uint8_t);
 static void init_int_names();
-static inline uint64_t flush_idt(uint16_t, uint32_t)
 
 
 void idt_init()
@@ -38,8 +37,7 @@ void idt_init()
     idt_ptr.limit = sizeof(idt_entry_t) * INT_CNT - 1;
     idt_ptr.base = (uint32_t)&idt_entries;
     // 加载IDT
-    uint64_t idt_ptr_m = flush_idt(idt_ptr.limit, idt_ptr.base);
-    asm volatile ("lidt %0" : : "m" (idt_ptr_m));
+    asm volatile ("lidt %0" : : "m" (idt_ptr));
     
     bzero((uint8_t *)&interrupt_handlers, sizeof(interrupt_handler_t) * INT_CNT);
 
@@ -97,7 +95,7 @@ void idt_init()
     // 255 将来用于实现系统调用
     idt_set_gate(255, (uint32_t)isr255, 0x08, 0x8E);
         
-    //init_int_names();
+    init_int_names();
 }
 
 
@@ -184,9 +182,10 @@ void isr_handler(pt_regs_t *regs)
 
 
 // 注册一个中断处理函数
-void register_interrupt_handler(uint8_t n, interrupt_handler_t h)
+void register_interrupt_handler(uint8_t n, interrupt_handler_t h, const char* name)
 {
     interrupt_handlers[n] = h;
+    int_names[n] = name;
 }
 
 
